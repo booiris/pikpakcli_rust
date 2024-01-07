@@ -1,0 +1,10 @@
+[package]
+name = "pikpakcli_rust"
+version = "0.1.0"
+edition = "2021"
+description = "A CLI tool for PikPak"
+authors = ["booiris <booiris02@gmail.com>"]
+license = "MIT"
+
+[dependencies]
+clap = "4.4"
