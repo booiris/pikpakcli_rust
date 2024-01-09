@@ -1,2 +1,6 @@
 /target
 .vscode
+pikpakcli
+**.log
+config.yml
+temp.json
