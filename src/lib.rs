@@ -25,12 +25,12 @@ pub fn run_cmd() -> Result<()> {
     if cli.debug {
         setup_logger(LevelFilter::Debug, log_path)?;
     } else {
-        setup_logger(LevelFilter::Warn, log_path)?;
+        setup_logger(LevelFilter::Info, log_path)?;
     }
 
     if let Some(x) = cli.command {
         let rt = tokio::runtime::Runtime::new()?;
-        rt.block_on(async { handle(x).await })?;
+        rt.block_on(async { handle(x, cli.retry).await })?;
     }
 
     Ok(())

@@ -7,7 +7,7 @@ pub struct Cli {
     #[arg(short, long, action = clap::ArgAction::SetTrue)]
     pub debug: bool,
 
-    #[arg(short, long, action = clap::ArgAction::Set,default_value_t=0,help = "net error retry times, if it is set to negative, it will infinitely retry")]
+    #[arg(short, long, action = clap::ArgAction::Set,default_value_t=0,help = "net error retry times, if it is set to negative, it will infinitely retry",allow_hyphen_values=true)]
     pub retry: i8,
 
     #[command(subcommand)]
@@ -18,8 +18,8 @@ pub struct Cli {
 pub enum Commands {
     #[command(about = "Download a dir or a file", visible_alias = "d")]
     Download {
-        #[arg(help = "specify path")]
-        path: String,
+        #[arg(help = "specify multi path, can be a dir or a file")]
+        paths: Vec<String>,
         #[arg(short, long, default_value_t = String::from("./"), help = "output directory")]
         output: String,
         #[arg(short, long, default_value_t = 4, help = "download parallel count")]

@@ -1,12 +1,13 @@
 use anyhow::Result;
-use reqwest::header;
+use reqwest::{header, RequestBuilder};
 use serde::{Deserialize, Serialize};
 
 use crate::config::get_config;
 
 mod captcha_token;
+pub mod download;
 pub mod file;
-mod folder;
+pub mod folder;
 mod login;
 
 #[derive(Debug, Default)]
@@ -20,6 +21,7 @@ pub struct Client {
     device_id: String,
     refresh_second: i64,
     client: reqwest::Client,
+    pub retry_times: i8,
 }
 
 const USER_AGENT: &str = "ANDROID-com.pikcloud.pikpak/1.21.0";
@@ -27,7 +29,7 @@ const CLIENT_ID: &str = "YNxT9w7GMdWvEOKa";
 const CLIENT_SECRET: &str = "dbw2OtmVEeuUvIptb1Coyg";
 
 impl Client {
-    pub fn new() -> Result<Self> {
+    pub fn new(retry_times: i8) -> Result<Self> {
         let account = get_config().username.clone();
         let password = get_config().password.clone();
         let device_id = format!("{:x}", md5::compute(&account));
@@ -55,6 +57,7 @@ impl Client {
             password,
             client,
             device_id,
+            retry_times,
             ..Default::default()
         })
     }
@@ -77,4 +80,50 @@ pub struct ErrResp {
 enum Resp<T> {
     Success(T),
     Err(ErrResp),
+}
+
+pub trait RetrySend {
+    async fn retry_send(self, retry_times: i8) -> Result<reqwest::Response>;
+}
+
+impl RetrySend for RequestBuilder {
+    async fn retry_send(self, retry_times: i8) -> Result<reqwest::Response> {
+        if retry_times < 0 {
+            let mut cnt = 0;
+            loop {
+                match self
+                    .try_clone()
+                    .ok_or(anyhow::anyhow!("clone request failed"))?
+                    .send()
+                    .await
+                {
+                    Ok(resp) => return Ok(resp),
+                    Err(err) => {
+                        std::thread::sleep(std::time::Duration::from_secs(5));
+                        log::warn!("request failed, err: {}, retry times: {}", err, cnt + 1);
+                        cnt += 1;
+                    }
+                }
+            }
+        } else {
+            for i in 0..=retry_times {
+                match self
+                    .try_clone()
+                    .ok_or(anyhow::anyhow!("clone request failed"))?
+                    .send()
+                    .await
+                {
+                    Ok(resp) => return Ok(resp),
+                    Err(err) => {
+                        if i == retry_times {
+                            return Err(err.into());
+                        }
+                        std::thread::sleep(std::time::Duration::from_secs(5));
+                        log::warn!("request failed, err: {}, retry times: {}", err, i + 1);
+                    }
+                }
+            }
+            panic!("retry send failed")
+        }
+    }
 }

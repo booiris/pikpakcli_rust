@@ -1,3 +1,5 @@
+use crate::pikpak::RetrySend;
+
 use super::{Client, Resp, CLIENT_ID, CLIENT_SECRET};
 use anyhow::{Context, Result};
 use log::*;
@@ -33,7 +35,7 @@ impl Client {
         debug!("req: {:?}", req);
 
         match req
-            .send()
+            .retry_send(self.retry_times)
             .await
             .context("[login]")?
             .json::<Resp<LoginResp>>()
@@ -69,7 +71,7 @@ mod tests {
             return Ok(());
         }
 
-        if let Ok(mut client) = Client::new() {
+        if let Ok(mut client) = Client::new(0) {
             client.login().await.ok();
         }
 
