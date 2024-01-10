@@ -1,3 +1,5 @@
 proxy:
 username: xxx
 password: xxx
+#If the log_path is not set, the output won't be logged to a file.
+log_path: output.log
