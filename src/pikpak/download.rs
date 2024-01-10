@@ -28,12 +28,13 @@ fn get_download_client() -> &'static Client {
 }
 
 pub async fn download_with_file(path: &Path, file: FileType, retry_times: i8) -> Result<()> {
-    let mut out_file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .mode(0o644)
-        .open(path)
-        .await?;
+    let mut opt = OpenOptions::new();
+    opt.create(true).append(true);
+
+    #[cfg(unix)]
+    opt.mode(0o644);
+
+    let mut out_file = opt.open(path).await?;
     let size = out_file.metadata().await?.len();
     let resume = size != 0;
     let mut req = get_download_client()
