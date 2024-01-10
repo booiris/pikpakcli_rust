@@ -25,7 +25,7 @@ pub fn run_cmd() -> Result<()> {
     if cli.debug {
         setup_logger(LevelFilter::Debug, log_path)?;
     } else {
-        setup_logger(LevelFilter::Error, log_path)?;
+        setup_logger(LevelFilter::Warn, log_path)?;
     }
 
     if let Some(x) = cli.command {

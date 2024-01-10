@@ -11,9 +11,9 @@ pub async fn handle(cmd: Commands) -> Result<()> {
 
     match cmd {
         Commands::Download {
-            path,
-            output,
-            parallel,
+            path: _,
+            output: _,
+            parallel: _,
         } => todo!(),
         Commands::List { long, human, path } => client.list(long, human, path).await,
     }
