@@ -4,7 +4,7 @@ use humansize::format_size;
 use humansize::DECIMAL;
 use log::debug;
 
-use crate::pikpak::file::File;
+use crate::pikpak::file::FileStatus;
 
 use super::Client;
 
@@ -16,9 +16,11 @@ enum Mode {
 
 impl Client {
     pub async fn list(mut self, long: bool, human: bool, path: String) -> Result<()> {
-        let parent_id = self.get_path_folder_id(&path).await?;
-        debug!("get parent_id: {}", parent_id);
-        let files = self.get_folder_file_stat_list(parent_id).await?;
+        let parent_id = self.get_path_id(&path).await?;
+        debug!("get parent_id: {:?}", parent_id);
+        let files = self
+            .get_file_status_list_by_folder_id(parent_id.get_id())
+            .await?;
         for file in files {
             if long {
                 if human {
@@ -34,7 +36,7 @@ impl Client {
     }
 }
 
-fn display(mode: Mode, file: File) {
+fn display(mode: Mode, file: FileStatus) {
     match mode {
         Mode::Default => {
             if file.kind == "drive#folder" {

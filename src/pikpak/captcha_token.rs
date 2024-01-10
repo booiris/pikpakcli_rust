@@ -6,7 +6,7 @@ use log::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use crate::pikpak::Resp;
+use crate::pikpak::{Resp, RetrySend};
 
 use super::{Client, CLIENT_ID};
 
@@ -61,7 +61,7 @@ impl Client {
         debug!("req: {:?}", req);
 
         match req
-            .send()
+            .retry_send(self.retry_times)
             .await
             .context("[auth_captcha_token]")?
             .json::<Resp<Value>>()
@@ -98,7 +98,7 @@ mod tests {
             return Ok(());
         }
 
-        if let Ok(mut client) = Client::new() {
+        if let Ok(mut client) = Client::new(0) {
             client.login().await.ok();
             let res = client
                 .auth_captcha_token("GET:/drive/v1/files".into())
