@@ -65,10 +65,10 @@ jobs:
         shell: bash
         env:
           target: ${{ matrix.target }}
-          version: ${{ github.ref##*/ }}
         run: |
           cargo build --locked --release --target=${{ matrix.target }} ${{ matrix.cargo-flags }}
           bin=${GITHUB_REPOSITORY##*/}
+          version=${{ github.ref##*/ }}
           alias_bin="pikpakcli"
           name=$alias_bin-$version-$target
           mv target/$target/release/$bin target/$target/release/$name
