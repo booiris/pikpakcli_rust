@@ -11,6 +11,7 @@ use anyhow::Context;
 use anyhow::Ok;
 use anyhow::Result;
 use async_recursion::async_recursion;
+use itertools::Itertools;
 use log::*;
 use tokio::fs;
 use tokio::fs::File;
@@ -43,6 +44,8 @@ impl Client {
                 }
             }
         }
+
+        tasks = tasks.into_iter().unique_by(|x| x.0.clone()).collect();
 
         debug!("tasks: {:#?}", tasks);
 
