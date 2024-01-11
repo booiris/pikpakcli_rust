@@ -47,10 +47,9 @@ jobs:
           target: ${{ matrix.target }}
         run: |
           cargo build --locked --release --target=${{ matrix.target }} ${{ matrix.cargo-flags }}
-          bin=${GITHUB_REPOSITORY##*/}
           ver=${GITHUB_REF##*/}
-          alias_bin="pikpakcli"
-          name=$alias_bin-$version-$target
+          bin="pikpakcli"
+          name=$bin-$version-$target
           mv target/$target/release/$bin target/$target/release/$name
           echo "cmd=target/$target/release/$name" >> $GITHUB_OUTPUT
 
