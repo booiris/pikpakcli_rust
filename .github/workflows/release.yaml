@@ -43,6 +43,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+      
+      - name: Install Build Dependencies
+        if : ${{ matrix.use-cross != 'aarch64-apple-darwin' && matrix.use-cross != 'x86_64-apple-darwin' }}
+        run: sudo apt-get update && sudo apt-get install pkg-config libssl-dev
 
       - name: Show Version Information (Rust, cargo, GCC)
         shell: bash
