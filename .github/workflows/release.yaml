@@ -68,19 +68,19 @@ jobs:
         run: |
           cargo build --locked --release --target=${{ matrix.target }} ${{ matrix.cargo-flags }}
           bin=${GITHUB_REPOSITORY##*/}
-          version=${{ github.ref##*/ }}
+          ver=${GITHUB_REF##*/}
           alias_bin="pikpakcli"
           name=$alias_bin-$version-$target
           mv target/$target/release/$bin target/$target/release/$name
           echo "cmd=target/$target/release/$name" >> $GITHUB_OUTPUT
 
-      - name: Publish
-        uses: softprops/action-gh-release@v1
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        with:
-          draft: false
-          files: |
-            ${{ steps.package.outputs.cmd }}
-          body: ${{ steps.git-cliff.outputs.content }}
-          tag: ${{ github.ref }}
-          token: ${{ secrets.TOKEN }}
+      # - name: Publish
+      #   uses: softprops/action-gh-release@v1
+      #   if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      #   with:
+      #     draft: false
+      #     files: |
+      #       ${{ steps.package.outputs.cmd }}
+      #     body: ${{ steps.git-cliff.outputs.content }}
+      #     tag: ${{ github.ref }}
+      #     token: ${{ secrets.TOKEN }}
