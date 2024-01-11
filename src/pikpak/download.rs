@@ -12,6 +12,7 @@ use reqwest::Client;
 use tokio::fs::File;
 use tokio::fs::OpenOptions;
 
+use crate::config::get_config;
 use crate::pikpak::RetrySend;
 
 use super::file::FileType;
@@ -20,8 +21,14 @@ use super::USER_AGENT;
 fn get_download_client() -> &'static Client {
     static CLIENT: OnceLock<Client> = OnceLock::new();
     CLIENT.get_or_init(|| {
-        Client::builder()
-            .user_agent(USER_AGENT)
+        let mut client_builder = Client::builder().user_agent(USER_AGENT);
+        if let Some(proxy) = &get_config().proxy {
+            client_builder =
+                client_builder.proxy(reqwest::Proxy::all(proxy).expect(
+                    "[get_download_client] parse proxy failed, please check your config file",
+                ));
+        }
+        client_builder
             .build()
             .expect("[get_download_client] build client failed")
     })

@@ -29,6 +29,7 @@ colored = "2.1"
 humansize = "2.1"
 futures = "0.3"
 async-recursion = "1.0"
+itertools = "0.12"
 
 [profile.release]
 opt-level = 3
