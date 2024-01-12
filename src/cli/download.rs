@@ -20,7 +20,7 @@ use tokio::sync::Semaphore;
 impl Client {
     pub async fn download(
         mut self,
-        mut paths: Vec<String>,
+        paths: Vec<String>,
         output: String,
         parallel: usize,
     ) -> Result<()> {
@@ -28,7 +28,8 @@ impl Client {
         create_dir_if_not_exists(output_dir)?;
         let mut tasks: Vec<(String, PathBuf)> = Vec::new();
         if paths.is_empty() {
-            paths = vec!["/".into()];
+            info!("please input path");
+            return Ok(());
         }
         for path in paths {
             debug!("finding path: {}", path);
