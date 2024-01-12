@@ -16,6 +16,7 @@ use log::*;
 use tokio::fs;
 use tokio::fs::File;
 use tokio::sync::Semaphore;
+use tokio::time::sleep;
 
 impl Client {
     pub async fn download(
@@ -152,7 +153,19 @@ async fn download_file(file: FileType, output_path: PathBuf, retry_times: i8) ->
             .context("[download_file] failed to create flag file")?;
     }
 
-    download_with_file(output_path.as_path(), file, retry_times).await?;
+    let mut now = 0;
+    while now <= retry_times || retry_times < 0 {
+        if let Err(err) = download_with_file(output_path.as_path(), &file, retry_times).await {
+            error!(
+                "[download_file] download failed, err: {:#?}, retry: {} times",
+                err, now
+            );
+            sleep(std::time::Duration::from_secs(10)).await;
+        } else {
+            break;
+        }
+        now += 1;
+    }
 
     fs::remove_file(&flag_path)
         .await
