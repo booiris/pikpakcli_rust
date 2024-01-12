@@ -34,7 +34,7 @@ fn get_download_client() -> &'static Client {
     })
 }
 
-pub async fn download_with_file(path: &Path, file: FileType, retry_times: i8) -> Result<()> {
+pub async fn download_with_file(path: &Path, file: &FileType, retry_times: i8) -> Result<()> {
     let mut out_file = OpenOptions::new()
         .create(true)
         .append(true)
@@ -44,7 +44,7 @@ pub async fn download_with_file(path: &Path, file: FileType, retry_times: i8) ->
     let size = out_file.metadata().await?.len();
     let resume = size != 0;
     let mut req = get_download_client()
-        .get(file.links.application_octet_stream.url)
+        .get(&file.links.application_octet_stream.url)
         .header("User-Agent", USER_AGENT);
     if resume {
         info!(
@@ -132,7 +132,7 @@ mod tests {
                 .get_file_by_id("VNhqdoPCnu4swXeYNFIj6O1Po1".into())
                 .await
             {
-                let res = download_with_file(Path::new("test.mp4"), file, 0).await;
+                let res = download_with_file(Path::new("test.mp4"), &file, 0).await;
                 info!("{:#?}", res);
             }
         }
