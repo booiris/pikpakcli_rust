@@ -97,5 +97,4 @@ jobs:
         with:
           draft: false
           files: ${{ steps.build.outputs.cmd }}
-          token: ${{ secrets.TOKEN }}
-          body_path: ${{ github.workspace }}/CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}
